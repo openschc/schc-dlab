@@ -53,7 +53,7 @@ cd openschc && git checkout MOOC
 
 ```bash
 cd ~
-git clone https://github.com/lab-schc/schc-dlab.git 
+git clone https://github.com/openschc/schc-dlab.git
 cd schc-dlab && docker build -t core:schc-dlab .
 ```
 
