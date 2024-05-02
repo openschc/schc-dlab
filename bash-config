@@ -1,0 +1,9 @@
+
+# schc docker lab config
+cd /root/openschc/examples
+case $(hostname) in
+    (device) export PS1="\e[1;31m[\u@\h \W]\$ \e[m";;
+    (core) export PS1="\e[1;36m[\u@\h \W]\$ \e[m";;
+    (App) export PS1="\e[1;32m[\u@\h \W]\$ \e[m";;
+esac
+xrdb /root/.Xresources

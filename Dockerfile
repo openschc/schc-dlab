@@ -62,4 +62,8 @@ WORKDIR /root
 
 # schc docker lab config
 COPY ./schc-ping.xml /root/.coregui/xmls/schc-ping.xml
-RUN echo "cd /root/openschc/examples" >> /root/.bashrc
+RUN apt-get install -y nano vim x11-xserver-utils
+COPY ./xterm-config /root/.Xresources
+COPY ./bash-config /root/bash-config
+RUN cat /root/bash-config >> .bashrc && rm bash-config
+

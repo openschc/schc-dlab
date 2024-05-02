@@ -1,0 +1,17 @@
+XTerm.termName: xterm-256color
+XTerm*faceName: DejaVu Sans Mono
+XTerm*faceSize: 11
+
+XTerm*selectToClipboard: true
+XTerm*highlightSelection: true
+XTerm*trimSelection: true
+
+XTerm*vt100.translations: #override \n\
+  Ctrl <Key>-: smaller-vt-font() \n\
+  Ctrl <Key>+: larger-vt-font() \n\
+  Ctrl <Key>0: set-vt-font(d) \n\
+  Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+  Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+
+XTerm*background: black
+XTerm*foreground: white
