@@ -17,7 +17,7 @@ Available options:
 
 Available commands:
   install         Build and run the schc-dlab docker container
-  start           Start the docker container if stopped
+  start           Start the schc-dlab container
   core            Open the CORE program
   wireshark       Open Wireshark
   bash            Open a bash session within the container
@@ -46,10 +46,6 @@ die() {
 }
 
 parse_params() {
-  # default values of variables set from params
-  flag=0
-  param=''
-
   while :; do
     case "${1-}" in
     -h | --help) usage ;;
@@ -66,7 +62,8 @@ parse_params() {
   [[ ${#args[@]} -eq 0 ]] && msg "No command provided." && usage
   [[ ${#args[@]} -gt 1 ]] && msg "Only 1 command is allowed." && usage
   cmd=${args[0]}
-  ! [[ " ${commands} " =~ .*\ ${cmd}\ .* ]] && msg "Invalid command '${cmd}'." && usage
+  ! [[ " ${commands} " =~ .*\ ${cmd}\ .* ]] && \
+    msg "Invalid command '${cmd}'." && usage
 
   return 0
 }
@@ -77,29 +74,32 @@ parse_params "$@"
 msg "Running '${cmd}' command..."
 cd ${script_dir}
 
-# commands='install start core wireshark bash stop remove'
 case ${cmd} in
+# commands='install start core wireshark bash stop remove'
+
   (install)
-    # TODO: Check if not already 'installed'
-    docker build -t schc-dlab:openschc . 
-    # get ${OPENSCHC_DIR}
-    OPENSCHC_DIR=~/openschc
+    # check if the image does not exist already & build
+    [[ -z "$(docker images -q schc-dlab:openschc 2> /dev/null)" ]] && \
+      docker build -t schc-dlab:openschc . 
+    # get openschc/ location
+    OPENSCHC_DIR=${OPENSCHC_DIR:-"${HOME}/openschc"}
     while ! [ -d ${OPENSCHC_DIR} ]; do
       msg "${OPENSCHC_DIR} not found."
       read -p "Enter openschc/ path: " OPENSCHC_DIR
     done
     msg "Found ${OPENSCHC_DIR}."
+    # create container
     docker run -itd --name schc-dlab \
       -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
       -v ${OPENSCHC_DIR}:/root/openschc --privileged schc-dlab:openschc
-    xhost +local:root
-    docker ps
+    xhost +local:root # enable xhost access to the root user
+    docker ps | grep schc-dlab
     ;;
 
   (start)
     docker start schc-dlab
-    xhost +local:root
-    docker ps
+    xhost +local:root # enable xhost access to the root user
+    docker ps | grep schc-dlab
     ;;
 
   (core)
@@ -119,11 +119,12 @@ case ${cmd} in
 
   (stop)
     docker stop schc-dlab
+    docker ps -a | grep schc-dlab
     ;;
 
   (remove)
-    docker stop schc-dlab
-    docker rm schc-dlab
+    # rm container if exists, then image
+    [[ "$(docker ps -a -q -f name=schc-dlab)" ]] && docker rm schc-dlab
     docker rmi schc-dlab:openschc
     ;;
 
