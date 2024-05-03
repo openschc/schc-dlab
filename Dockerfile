@@ -61,9 +61,10 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC
 WORKDIR /root
 
 # schc docker lab config
+RUN pip install scapy cbor2 netifaces
 COPY ./schc-ping.xml /root/.coregui/xmls/schc-ping.xml
-RUN apt-get install -y nano vim x11-xserver-utils
-COPY ./xterm-config /root/.Xresources
 COPY ./bash-config /root/bash-config
 RUN cat /root/bash-config >> .bashrc && rm bash-config
+RUN apt-get install -y nano vim x11-xserver-utils
+COPY ./xterm-config /root/.Xresources
 
