@@ -73,11 +73,63 @@ parse_params() {
 
 parse_params "$@"
 
-# check valid command
-cmd=${args[0]}
+# main
+msg "Running '${cmd}' command..."
+cd ${script_dir}
+
+# commands='install start core wireshark bash stop remove'
 case ${cmd} in
+  (install)
+    # TODO: Check if not already 'installed'
+    docker build -t schc-dlab:openschc . 
+    # get ${OPENSCHC_DIR}
+    OPENSCHC_DIR=~/openschc
+    while ! [ -d ${OPENSCHC_DIR} ]; do
+      msg "${OPENSCHC_DIR} not found."
+      read -p "Enter openschc/ path: " OPENSCHC_DIR
+    done
+    msg "Found ${OPENSCHC_DIR}."
+    docker run -itd --name schc-dlab \
+      -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+      -v ${OPENSCHC_DIR}:/root/openschc --privileged schc-dlab:openschc
+    xhost +local:root
+    docker ps
+    ;;
+
+  (start)
+    docker start schc-dlab
+    xhost +local:root
+    docker ps
+    ;;
+
+  (core)
+    docker exec -itd schc-dlab core-daemon
+    sleep 1.5 # wait for core-daemon startup
+    docker exec -it schc-dlab core-gui
+    docker exec -it schc-dlab pkill core-daemon
+    ;;
+
+  (wireshark)
+    msg "Not yet implemented."
+    ;;
+
+  (bash)
+    docker exec -it schc-dlab bash
+    ;;
+
+  (stop)
+    docker stop schc-dlab
+    ;;
+
+  (remove)
+    docker stop schc-dlab
+    docker rm schc-dlab
+    docker rmi schc-dlab:openschc
+    ;;
+
+  (*)
+    die "Unknown command!"
+    ;;
 
 esac
-msg "Running '${cmd}' command."
-
 
