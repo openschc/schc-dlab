@@ -110,7 +110,7 @@ case ${cmd} in
     ;;
 
   (wireshark)
-    msg "Not yet implemented."
+    docker exec -itd schc-dlab wireshark
     ;;
 
   (bash)
