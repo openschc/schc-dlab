@@ -13,9 +13,9 @@ This repository is a valuable resource for those looking to deepen their underst
 
 ## Setup
 
-0. Make sure you have `docker` installed. Follow the [installation procedure](https://docs.docker.com/engine/install/) according to your platform, as well as the post-installation steps to [manage docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+0. Make sure [Docker](https://www.docker.com/) is installed on your system (try running `docker info`). Follow the [installation procedure](https://docs.docker.com/engine/install/) **according to your platform**, as well as the post-installation steps to [manage docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 
-For Ubuntu:
+  - Example for Ubuntu:
 
 ```bash
 # Add Docker's official GPG key:
@@ -49,34 +49,41 @@ git clone https://github.com/ltn22/openschc.git
 cd openschc && git checkout MOOC
 ```
 
-2. Clone this repository and build the `core` Docker image.
+2. Clone this repository and use the `schc-dlab.sh` script, a command manager for the SCHC Docker Lab container.
 
 ```bash
 cd ~
 git clone https://github.com/openschc/schc-dlab.git
-cd schc-dlab && docker build -t core:schc-dlab .
+cd schc-dlab && ./schc-dlab.sh -h
 ```
 
-3. Run the container using the following commands, specifying the location of your `openschc` directory.
+The available commands are:
+
+| Command   | Description                                  |
+| --------- | -------------------------------------------- |
+| install   | Build and run the schc-dlab docker container |
+| start     | Start the schc-dlab container                |
+| core      | Open the CORE program                        |
+| wireshark | Open Wireshark                               |
+| bash      | Open a bash session within the container     |
+| stop      | Stop the schc-dlab container                 |
+| remove    | Remove the schc-dlab container and image     |
+
+4. Specify the location of your `openschc/` directory and `install` the schc-dlab container. This step might take a while.
 
 ```bash
 export OPENSCHC_DIR=/home/coder/openschc  # <-- location of your openschc directory.
-docker run -itd --name core -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    -v ${OPENSCHC_DIR}:/root/openschc --privileged core:schc-dlab
-xhost +local:root # enable xhost access to the root user
+./schc-dlab.sh install
 ```
 
-4. For ease of use, you can add these *aliases* into your `~/.bashrc` or `~/.bash_aliases` file, or use the commands between `" "` to `start` and `stop` the docker container, as well as running `core-daemon` and `core-gui`.
+> *Note:* Your existing openschc repository will be mounted onto the schc-dlab container, so any changes remain persistent on your local drive and in the container. This means **you can edit the openschc files locally using your favorite text editor**.
+
+5. With the Docker container up and running (check with `docker ps`), run the `core` schc-dlab command. The CORE program will open. 
 
 ```bash
-alias core-start="docker start core && xhost +local:root"   # to start the docker container
-alias core-daemon="docker exec -it core core-daemon"        # to run the core-daemon
-alias core-gui="docker exec -it core core-gui"              # to open the CORE GUI program
-alias core-stop="docker stop core"                          # to stop the docker container
+./schc-dlab.sh core
 ```
 
-5. With the Docker container up and running (check with `docker ps`), run the `core-daemon` command, and then the `core-gui` command in another terminal. The CORE program will open. 
+6. Click on `File > Open...` and choose the `schc-ping.xml` file. Run the simulation using the green `Start Session` button. Double-click on each computer icon to access the `device`, `core`, or `App` system terminals. From here, you can follow the tutorials on [The Book Of SCHC](#) or test your own SCHC applications.
 
-
-6. Click on `File > Open...` and choose the `schc-ping.xml` file. Run the simulation using the green `Start Session` button. Double-click on each computer icon to access the `device`, `core`, or `app` system terminals. From here, you can follow the tutorials on [The Book Of SCHC](#) or test your own SCHC applications.
-
+7. When done, you can use the `stop` schc-dlab command to stop the docker container. Next time you want to use it, just run the `start` command. If you want to "uninstall" schc-dlab, use the `remove` command.
