@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM ubuntu:22.04
+FROM --platform=linux/amd64 ubuntu:22.04
 LABEL Description="CORE Docker Ubuntu Image"
 
 ARG PREFIX=/usr/local
