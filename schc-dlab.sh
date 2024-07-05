@@ -108,7 +108,7 @@ case ${cmd} in
     ;;
 
   (core-gui)
-    docker exec -it rm -rf /tmp/pycore.1
+    docker exec -it schc-dlab rm -rf /tmp/pycore.1
     docker exec -it schc-dlab core-gui
     ;;
 
