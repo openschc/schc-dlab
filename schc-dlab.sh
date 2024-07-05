@@ -18,7 +18,8 @@ Available options:
 Available commands:
   install         Build and run the schc-dlab docker container
   start           Start the schc-dlab container
-  core            Open the CORE program
+  core-daemon     Start the CORE daemon
+  core-gui        Open the CORE GUI program
   wireshark       Open Wireshark
   bash            Open a bash session within the container
   stop            Stop the schc-dlab container
@@ -27,7 +28,7 @@ EOF
   exit
 }
 
-commands='install start core wireshark bash stop remove'
+commands='install start core-daemon core-gui wireshark bash stop remove'
 
 cleanup() {
   trap - SIGINT SIGTERM ERR EXIT
@@ -102,11 +103,13 @@ case ${cmd} in
     docker ps | grep schc-dlab
     ;;
 
-  (core)
+  (core-daemon)
     docker exec -itd schc-dlab core-daemon
-    sleep 1.5 # wait for core-daemon startup
+    ;;
+
+  (core-gui)
+    docker exec -it rm -rf /tmp/pycore.1
     docker exec -it schc-dlab core-gui
-    docker exec -it schc-dlab pkill core-daemon
     ;;
 
   (wireshark)

@@ -78,10 +78,11 @@ export OPENSCHC_DIR=/home/coder/openschc  # <-- location of your openschc direct
 
 > *Note:* Your existing openschc repository will be mounted onto the schc-dlab container, so any changes remain persistent on your local drive and in the container. This means **you can edit the openschc files locally using your favorite text editor**.
 
-5. With the Docker container up and running (check with `docker ps`), run the `core` schc-dlab command. The CORE program will open. 
+5. With the Docker container up and running (check with `docker ps`), run the `core-daemon` and `core-gui` schc-dlab commands. The CORE program will open. 
 
 ```bash
-./schc-dlab.sh core
+./schc-dlab.sh core-daemon
+./schc-dlab.sh core-gui
 ```
 
 6. Click on `File > Open...` and choose the `schc-ping.xml` file. Run the simulation using the green `Start Session` button. Double-click on each computer icon to access the `device`, `core`, or `App` system terminals. From here, you can follow the tutorials on [The Book Of SCHC](#) or test your own SCHC applications.
