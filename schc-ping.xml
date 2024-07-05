@@ -3,20 +3,20 @@
   <networks/>
   <devices>
     <device id="1" name="device" icon="" canvas="1" type="PC" class="" image="">
-      <position x="112.0" y="204.0" lat="47.57731208894736" lon="-122.13081504907265" alt="2.0"/>
+      <position x="177.0" y="58.0" lat="47.578639209439196" lon="-122.12993919167066" alt="2.0"/>
       <configservices>
         <service name="DefaultRoute"/>
       </configservices>
     </device>
     <device id="2" name="core" icon="" canvas="1" type="PC" class="" image="">
-      <position x="368.0" y="208.0" lat="47.577275729008406" lon="-122.12736551838164" alt="2.0"/>
+      <position x="540.0" y="58.0" lat="47.578639209439196" lon="-122.12504786494861" alt="2.0"/>
       <configservices>
         <service name="StaticRoute"/>
         <service name="DefaultRoute"/>
       </configservices>
     </device>
     <device id="3" name="App" icon="" canvas="1" type="PC" class="" image="">
-      <position x="762.0" y="211.0" lat="47.57724845903762" lon="-122.1220564750525" alt="2.0"/>
+      <position x="892.0" y="58.0" lat="47.578639209439196" lon="-122.12030476024846" alt="2.0"/>
       <configservices>
         <service name="StaticRoute"/>
         <service name="DefaultRoute"/>
@@ -99,7 +99,7 @@ ip route add 	aaaa::/32 via 2001:0:0:1::14
     <configuration name="shapes" value="[]"/>
     <configuration name="edges" value="[]"/>
     <configuration name="hidden" value="[]"/>
-    <configuration name="canvas" value="{&quot;gridlines&quot;: true, &quot;canvases&quot;: [{&quot;id&quot;: 1, &quot;wallpaper&quot;: null, &quot;wallpaper_style&quot;: 1, &quot;fit_image&quot;: false, &quot;dimensions&quot;: [1000, 750]}]}"/>
+    <configuration name="canvas" value="{&quot;gridlines&quot;: true, &quot;canvases&quot;: [{&quot;id&quot;: 1, &quot;wallpaper&quot;: &quot;fond-simu.png&quot;, &quot;wallpaper_style&quot;: 0, &quot;fit_image&quot;: true, &quot;dimensions&quot;: [1024, 521]}]}"/>
   </session_metadata>
   <default_services>
     <node type="mdr">
