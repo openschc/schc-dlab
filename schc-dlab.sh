@@ -80,19 +80,19 @@ case ${cmd} in
 
   (install)
     # check if the image does not exist already & build
-    [[ -z "$(docker images -q schc-dlab:openschc 2> /dev/null)" ]] && \
-      docker build -t schc-dlab:openschc . 
-    # get openschc/ location
-    OPENSCHC_DIR=${OPENSCHC_DIR:-"${HOME}/openschc"}
-    while ! [ -d ${OPENSCHC_DIR} ]; do
-      msg "${OPENSCHC_DIR} not found."
-      read -p "Enter openschc/ path: " OPENSCHC_DIR
+    [[ -z "$(docker images -q schc-dlab:generic 2> /dev/null)" ]] && \
+      docker build -t schc-dlab:generic . 
+    # get schc-implementations/ location
+    IMPLEMS_DIR=${IMPLEMS_DIR:-"${HOME}/schc-implementations"}
+    while ! [ -d ${IMPLEMS_DIR} ]; do
+      msg "${IMPLEMS_DIR} not found."
+      read -p "Enter schc-implementations/ path: " IMPLEMS_DIR
     done
-    msg "Found ${OPENSCHC_DIR}."
+    msg "Found ${IMPLEMS_DIR}."
     # create container
     docker run -itd --name schc-dlab \
       -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-      -v ${OPENSCHC_DIR}:/root/openschc --privileged schc-dlab:openschc
+      -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
     xhost +local:root # enable xhost access to the root user
     docker ps | grep schc-dlab
     ;;
@@ -128,7 +128,7 @@ case ${cmd} in
   (remove)
     # rm container if exists, then image
     [[ "$(docker ps -a -q -f name=schc-dlab)" ]] && docker rm schc-dlab
-    docker rmi schc-dlab:openschc
+    docker rmi schc-dlab:generic
     ;;
 
   (*)

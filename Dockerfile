@@ -61,11 +61,12 @@ RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC
 WORKDIR /root
 
 # schc docker lab config
-RUN apt-get install -y nano vim x11-xserver-utils wireshark net-tools
-RUN pip install scapy cbor2 netifaces aiocoap
+RUN apt-get install -y nano vim x11-xserver-utils wireshark net-tools cmake
+RUN pip install scapy cbor2 netifaces aiocoap microschc
 COPY ./schc-ping.xml /root/.coregui/xmls/schc-ping.xml
 COPY ./fond-simu.png /root/.coregui/backgrounds/fond-simu.png
 COPY ./bash-config /root/bash-config
 RUN cat /root/bash-config >> .bashrc && rm bash-config
 COPY ./xterm-config /root/.Xresources
+
 
