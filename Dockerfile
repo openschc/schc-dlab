@@ -62,7 +62,7 @@ WORKDIR /root
 
 # schc docker lab config
 RUN apt-get install -y nano vim x11-xserver-utils wireshark net-tools
-RUN pip install scapy cbor2 netifaces
+RUN pip install scapy cbor2 netifaces aiocoap
 COPY ./schc-ping.xml /root/.coregui/xmls/schc-ping.xml
 COPY ./fond-simu.png /root/.coregui/backgrounds/fond-simu.png
 COPY ./bash-config /root/bash-config
