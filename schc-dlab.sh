@@ -69,11 +69,42 @@ parse_params() {
   return 0
 }
 
+docker_run_for_linux() {
+  docker run -itd --name schc-dlab \
+    -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
+    -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
+}
+
+xhost_for_linux() {
+  xhost +local:root # enable xhost access to the root user
+}
+
+docker_run_for_mac() {
+  local IP=$1
+  docker run -itd --name schc-dlab \
+    -e DISPLAY="${IP}:0" \
+    -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
+}
+
+xhost_for_mac() {
+  local IP=$1
+  /opt/X11/bin/xhost "$IP" # enable xhost access to the display address
+}
+
 parse_params "$@"
 
+# setup
+# check if we're running on MacOS
+running_on_mac=false
+os_name=$(uname)
+if [[ "$os_name" == "Darwin" ]]; then
+  running_on_mac=true
+fi
+    
 # main
 msg "Running '${cmd}' command..."
 cd ${script_dir}
+
 
 case ${cmd} in
 # commands='install start core wireshark bash stop remove'
@@ -90,16 +121,25 @@ case ${cmd} in
     done
     msg "Found ${IMPLEMS_DIR}."
     # create container
-    docker run -itd --name schc-dlab \
-      -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-      -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
-    xhost +local:root # enable xhost access to the root user
+    if $running_on_mac; then
+      IP=$(/usr/sbin/ipconfig getifaddr en0)
+      docker_run_for_mac $IP
+      xhost_for_mac $IP
+    else
+      docker_run_for_linux
+      xhost_for_linux
+    fi
     docker ps | grep schc-dlab
     ;;
 
   (start)
     docker start schc-dlab
-    xhost +local:root # enable xhost access to the root user
+    if $running_on_mac; then
+      IP=$(/usr/sbin/ipconfig getifaddr en0)
+      xhost_for_mac $IP # echo "Run bash and set DISPLAY=$IP"
+    else
+      xhost_for_linux
+    fi
     docker ps | grep schc-dlab
     ;;
 
