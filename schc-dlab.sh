@@ -79,6 +79,9 @@ case ${cmd} in
 # commands='install start core wireshark bash stop remove'
 
   (install)
+    # first we must build EMANE python bindings
+    [[ -z "$(docker images -q emane-python:latest 2> /dev/null)" ]] && \
+      docker build -t emane-python -f ./Dockerfile.emane-python .
     # check if the image does not exist already & build
     [[ -z "$(docker images -q schc-dlab:openschc 2> /dev/null)" ]] && \
       docker build -t schc-dlab:openschc . 

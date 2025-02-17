@@ -2,67 +2,115 @@
 FROM --platform=linux/amd64 ubuntu:22.04
 LABEL Description="CORE Docker Ubuntu Image"
 
-ARG PREFIX=/usr/local
-ARG BRANCH=master
-ARG PROTOC_VERSION=3.19.6
-ARG VENV_PATH=/opt/core/venv
-ENV DEBIAN_FRONTEND=noninteractive
-ENV PATH="$PATH:${VENV_PATH}/bin"
 WORKDIR /opt
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    git \
+    ca-certificates \
+    automake \
+    make \
+    libtool \
+    pkg-config \
+    gawk \
+    g++ \
+    dpkg-dev \
+    debhelper \
+    libreadline-dev \
+    texinfo \
+    imagemagick \
+    groff \
+    build-essential:native \
+    texlive-latex-recommended \
+    texlive-plain-generic && \
+    git clone https://github.com/USNavalResearchLaboratory/ospf-mdr.git && \
+    cd ospf-mdr && \
+    ./bootstrap.sh && \
+    ./configure && \
+    (make -f quagga.deb.mk build || make -f quagga.deb.mk build) && \
+    mv quagga-mr_0.99*.deb /opt/ && \
+    cd /opt && \
+    rm -rf ospf-mdr && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 
+FROM ubuntu:22.04
+ENV DEBIAN_FRONTEND=noninteractive
+WORKDIR /opt
 # install system dependencies
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
     ca-certificates \
-    git \
-    sudo \
+    xterm \
+    psmisc \
+    python3 \
+    python3-tk \
+    python3-venv \
+    python3-pip \
     wget \
-    tzdata \
-    libpcap-dev \
-    libpcre3-dev \
-    libprotobuf-dev \
-    libxml2-dev \
-    protobuf-compiler \
-    unzip \
-    uuid-dev \
     iproute2 \
     iputils-ping \
+    curl \
     tcpdump && \
-    apt-get autoremove -y
-
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
 # install core
-RUN git clone https://github.com/coreemu/core && \
-    cd core && \
-    git checkout ${BRANCH} && \
-    ./setup.sh && \
-    PATH=/root/.local/bin:$PATH inv install -v -p ${PREFIX} && \
-    cd /opt && \
-    rm -rf ospf-mdr
-
-# install emane
-RUN wget https://github.com/protocolbuffers/protobuf/releases/download/v${PROTOC_VERSION}/protoc-${PROTOC_VERSION}-linux-x86_64.zip && \
-    mkdir protoc && \
-    unzip protoc-${PROTOC_VERSION}-linux-x86_64.zip -d protoc && \
-    git clone https://github.com/adjacentlink/emane.git && \
-    cd emane && \
-    ./autogen.sh && \
-    ./configure --prefix=/usr && \
-    make -j$(nproc)  && \
+ARG CORE_PACKAGE=core_9.2.0_amd64.deb
+ARG PACKAGE_URL=https://github.com/coreemu/core/releases/latest/download/${CORE_PACKAGE}
+RUN apt-get update -y && \
+    wget -q ${PACKAGE_URL} && \
+    apt-get install -y --no-install-recommends ./${CORE_PACKAGE} && \
+    rm -f ${CORE_PACKAGE} && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+# install ospf mdr
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends \
+    automake \
+    make \
+    gawk \
+    git \
+    g++ \
+    libreadline-dev \
+    libtool \
+    pkg-config && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+RUN git clone https://github.com/USNavalResearchLaboratory/ospf-mdr.git && \
+    cd ospf-mdr && \
+    ./bootstrap.sh && \
+    ./configure --disable-doc --enable-user=root --enable-group=root \
+    --with-cflags=-ggdb --sysconfdir=/usr/local/etc/quagga --enable-vtysh \
+    --localstatedir=/var/run/quagga && \
+    make -j$(nproc) && \
     make install && \
-    cd src/python && \
-    make clean && \
-    PATH=/opt/protoc/bin:$PATH make && \
-    ${VENV_PATH}/bin/python -m pip install . && \
-    cd /opt && \
-    rm -rf protoc && \
-    rm -rf emane && \
-    rm -f protoc-${PROTOC_VERSION}-linux-x86_64.zip
-
+    cd .. && \
+    rm -rf ospf-mdr
+# install emane
+ARG EMANE_RELEASE=emane-1.5.1-release-1
+ARG EMANE_PACKAGE=${EMANE_RELEASE}.ubuntu-22_04.amd64.tar.gz
+RUN apt-get update -y && \
+    wget -q https://adjacentlink.com/downloads/emane/${EMANE_PACKAGE} && \
+    tar xf ${EMANE_PACKAGE} && \
+    cd ${EMANE_RELEASE}/debs/ubuntu-22_04/amd64 && \
+    rm emane-spectrum-tools*.deb emane-model-lte*.deb && \
+    rm *dev*.deb && \
+    apt-get install -y --no-install-recommends ./emane*.deb ./python3-emane_*.deb && \
+    cd ../../../.. && \
+    rm ${EMANE_PACKAGE} && \
+    rm -rf ${EMANE_RELEASE} && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+# install emane python bindings
+ARG VENV_PATH=/opt/core/venv
+COPY --from=emane-python /opt/emane-*.whl .
+RUN ${VENV_PATH}/bin/python -m pip install ./emane-*.whl
+# set default directory
 WORKDIR /root
 
 # schc docker lab config
-RUN apt-get install -y nano vim x11-xserver-utils wireshark net-tools
-RUN pip install scapy cbor2 netifaces aiocoap
+RUN apt-get update && \
+    apt-get install -y nano vim x11-xserver-utils wireshark net-tools
+RUN pip install scapy cbor2 netifaces2 aiocoap
 COPY ./schc-ping.xml /root/.coregui/xmls/schc-ping.xml
 COPY ./fond-simu.png /root/.coregui/backgrounds/fond-simu.png
 COPY ./bash-config /root/bash-config
