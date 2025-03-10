@@ -13,48 +13,34 @@ This repository is a valuable resource for those looking to deepen their underst
 
 ## Setup
 
-0. Make sure [Docker](https://www.docker.com/) is installed on your system (try running `docker info`). Follow the [installation procedure](https://docs.docker.com/engine/install/) **according to your platform**, as well as the post-installation steps to [manage docker as a non-root user](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
+### Install Docker
 
-  - Example for Ubuntu:
+On MacOS, it seems to be a problem with `brew install docker command` as some features are not loaded. MyMy advice is to download the Docker Desktop app directly [here](https://docs.docker.com/desktop/setup/install/mac-install/).
 
+You also need XQuartz in order to run any GUI with Docker :
 ```bash
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+# Install XQuartz
+brew install xquartz
 
-# Add the repository to Apt sources:
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-
-# Install the Docker packages:
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-# Manage Docker as a non-root user:
-sudo groupadd docker
-sudo usermod -aG docker $USER
-echo "Log out and log back in so that your group membership is re-evaluated."
+# Launch XQuartz
+open -a xquartz
 ```
 
-1. Clone [openschc](https://github.com/ltn22/openschc/tree/MOOC/) and switch to the `MOOC` branch.
+Once XQuartz has been launched, you need to allow connections from network clients. Go to Preferences (⌘,), go to the "Security" tab, and then tick "Allow connections from network clients."
+
+### Install dependencies and container
 
 ```bash
-cd ~
+# Clone OpenSCHC and switch to MOOC branch
 git clone https://github.com/ltn22/openschc.git
-cd openschc && git checkout MOOC
-```
+cd openschc ; git checkout MOOC
 
-2. Clone this repository and use the `schc-dlab.sh` script, a command manager for the SCHC Docker Lab container.
-
-```bash
-cd ~
+# Clone schc-dlab and switch to generic-mac branch
+cd ..
 git clone https://github.com/openschc/schc-dlab.git
-cd schc-dlab && ./schc-dlab.sh -h
+cd schc-dlab ; git checkout generic_mac
+# Display main script helper
+./schc-dlab.sh -h
 ```
 
 The available commands are:
@@ -72,7 +58,7 @@ The available commands are:
 4. Specify the location of your `openschc/` directory and `install` the schc-dlab container. This step might take a while.
 
 ```bash
-export OPENSCHC_DIR=/home/coder/openschc  # <-- location of your openschc directory.
+export OPENSCHC_DIR=/home/.../openschc  # <-- location of your openschc directory.
 ./schc-dlab.sh install
 ```
 
