@@ -72,7 +72,7 @@ parse_params() {
 docker_run_for_linux() {
   docker run -itd --name schc-dlab \
     -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix:rw \
-    -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
+    -v ${OPENSCHC_DIR}:/root/openschc --privileged schc-dlab:openschc
 }
 
 xhost_for_linux() {
@@ -83,12 +83,12 @@ docker_run_for_mac() {
   local IP=$1
   docker run -itd --name schc-dlab \
     -e DISPLAY="${IP}:0" \
-    -v ${IMPLEMS_DIR}:/root/schc-implementations --privileged schc-dlab:generic
+    -v ${OPENSCHC_DIR}:/root/openschc --privileged schc-dlab:openschc
 }
 
 xhost_for_mac() {
   local IP=$1
-  /opt/X11/bin/xhost "$IP" # enable xhost access to the display address
+  xhost + $IP
 }
 
 parse_params "$@"
@@ -114,15 +114,15 @@ case ${cmd} in
     [[ -z "$(docker images -q emane-python:latest 2> /dev/null)" ]] && \
       docker build -t emane-python -f ./Dockerfile.emane-python .
     # check if the image does not exist already & build
-    [[ -z "$(docker images -q schc-dlab:generic 2> /dev/null)" ]] && \
-      docker build -t schc-dlab:generic . 
-    # get schc-implementations/ location
-    IMPLEMS_DIR=${IMPLEMS_DIR:-"${HOME}/schc-implementations"}
-    while ! [ -d ${IMPLEMS_DIR} ]; do
-      msg "${IMPLEMS_DIR} not found."
-      read -p "Enter schc-implementations/ path: " IMPLEMS_DIR
+    [[ -z "$(docker images -q schc-dlab:openschc 2> /dev/null)" ]] && \
+      docker build -t schc-dlab:openschc . 
+    # get openschc/ location
+    OPENSCHC_DIR=${OPENSCHC_DIR:-"${HOME}/openschc"}
+    while ! [ -d ${OPENSCHC_DIR} ]; do
+      msg "${OPENSCHC_DIR} not found."
+      read -p "Enter openschc/ path: " OPENSCHC_DIR
     done
-    msg "Found ${IMPLEMS_DIR}."
+    msg "Found ${OPENSCHC_DIR}."
     # create container
     if $running_on_mac; then
       IP=$(/usr/sbin/ipconfig getifaddr en0)
@@ -171,7 +171,7 @@ case ${cmd} in
   (remove)
     # rm container if exists, then image
     [[ "$(docker ps -a -q -f name=schc-dlab)" ]] && docker rm schc-dlab
-    docker rmi schc-dlab:generic
+    docker rmi schc-dlab:openschc
     ;;
 
   (*)
@@ -179,4 +179,3 @@ case ${cmd} in
     ;;
 
 esac
-
