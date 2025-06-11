@@ -88,7 +88,7 @@ docker_run_for_mac() {
 
 xhost_for_mac() {
   local IP=$1
-  /opt/X11/bin/xhost "$IP" # enable xhost access to the display address
+  xhost "$IP" # enable xhost access to the display address
 }
 
 parse_params "$@"
